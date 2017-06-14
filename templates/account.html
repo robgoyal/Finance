@@ -1,13 +1,32 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    CS50 Finance: Settings
+    Finance: Settings
 {% endblock %}
 
 {% block main %}
 
-    <h3 class="text-left"><span class="password">Change Password</span></h3>
+    <h3 class="text-left"><span class="headline">Change Username</span></h3>
+
+    <form action="{{ url_for('account') }}", method="post">
+        <fieldset>
+            <div class="form-group">
+                <input autocomplete="off" autofocus class="form-control" name="olduser" placeholder="Old Username" type="text"/>
+            </div>
+
+            <div class="form-group">
+                <input autocomplete="off" autofocus class="form-control" name="newuser" placeholder="New Username" type="text"/>
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-default" name="submit" type="submit" value="username">Save Username</button>
+            </div>
+        </fieldset>
+    </form>
+
     
+    <h3 class="text-left"><span class="headline">Change Password</span></h3>
+
     <form action="{{ url_for('account') }}" method="post">
         <fieldset>
             <div class="form-group">
@@ -17,10 +36,35 @@
                 <input autocomplete="off" autofocus class="form-control" name="newpass" placeholder="New Password" type="password"/>
             </div>
             <div class="form-group">
-                <input autocomplete="off" autofocus class="form-control" name="newpassCheck" placeholder="Re-Enter New Password"/ type="password">
+                <input autocomplete="off" autofocus class="form-control" name="newpassCheck" placeholder="Re-Enter Password"/ type="password">
             </div>
             <div class="form-group">
-                <button class="btn btn-default" type="submit">Save Settings</button>
+                <button class="btn btn-default" name="submit" type="submit" value="password">Save Password</button>
+            </div>
+        </fieldset>
+    </form>
+
+    <h3 class="text-left"><span class="headline">Add Cash</span></h3>
+
+    <form action="{{ url_for('account') }}" method="post">
+        <fieldset>
+            <div class="form-group">
+                <input autocomplete="off" autofocus class="form-control" name="cash" placeholder="Amount" type="text"/>
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-default" name="submit" type="submit" value="cash">Save Cash</button>
+            </div>
+        </fieldset>
+    </form>
+
+    <h3 class="text-left"><span class="headline">Delete Account</span></h3>
+
+    <form action="{{ url_for('account') }}" method="post">
+        <p> WARNING: This will delete your account and remove all your cash! </p>
+        <fieldset>
+            <div class="form-group">
+                <button class="btn btn-danger" name="submit" type="submit" value="delete">Delete Account</button>
             </div>
         </fieldset>
     </form>
