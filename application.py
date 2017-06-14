@@ -10,6 +10,7 @@ from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
 
 from helpers import *
+from history import plot_history
 
 # configure application
 app = Flask(__name__)
@@ -258,9 +259,13 @@ def quote():
             name = stock['name']
             symbol = stock['symbol']
             price = stock['price']        
-        
+            
+            # Get plot of stock history
+            plot_url = plot_history(symbol)
+
             # Return quote information
-            return render_template("quoted.html", name=name, symbol=symbol, price=usd(price))
+            return render_template("quoted.html", name=name, symbol=symbol,\
+                 price=usd(price), plot_url=plot_url)
         
         # Stock doesnt exist
         else:

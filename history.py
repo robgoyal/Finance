@@ -7,6 +7,8 @@ import datetime
 import sys
 import requests_cache
 import matplotlib.pyplot as plt
+import base64
+import io
 
 from csv import reader
 from pandas_datareader import data
@@ -37,7 +39,7 @@ def history(symbol, years):
         # Stock doesn't exist
         print("Error: Stock Doesn't Exist")
 
-def plotHistory(symbol):
+def plot_history(symbol):
 
     # Open csv file 
     with open("history/{}.csv".format(symbol), 'r') as f:
@@ -59,13 +61,20 @@ def plotHistory(symbol):
     # Set title and labels
     plt.title("{} Price History".format(symbol))
     plt.ylabel("Price (USD)")
-    
+        
+    img = io.BytesIO()
+    fig.savefig(img, format='png')
+    img.seek(0)
+
+    plot_url = base64.b64encode(img.getvalue()).decode()
+
+    return plot_url
     # Show plot
-    plt.show()
+    #plt.show()
 
 def main(symbol):
     history(symbol, 3)
-    plotHistory(symbol)
+    plot_history(symbol)
 
 if __name__ == "__main__":
     main(str(sys.argv[1]))

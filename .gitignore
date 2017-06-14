@@ -2,3 +2,4 @@
 __pycache__
 finance.db
 .~c9*
+cache.sqlite
