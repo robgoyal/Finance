@@ -73,7 +73,11 @@ body {
     font-family: "Helvetica Nueue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     color: #333;
-    background-color: blue;
+}
+
+
+#plot {
+    margin-top: 50px;
 }
 
 #Total {
@@ -81,14 +85,15 @@ body {
     border-top: 2px solid #ddd
 }
 
-.password{
+.headline{
     line-height:1em;
     font-size:20px;
 }
 
-.password:after {
+.headline:after {
     content: ' ';
     display:block;
-    border:2px solid black;
+    border:1.5px solid black;
+    margin-top: 10px;
     margin-bottom: 20px;
 }

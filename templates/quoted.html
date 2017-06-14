@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    CS50 Finance: Quote
+    Finance: Quote
 {% endblock %}
 
 {% block main %}
     <p>A share of {{ name }} ({{ symbol }}) costs {{ price }}. </p>
-    <img src="data:image/png;base64,{{ plot_url }}">
+    <img id="plot" src="data:image/png;base64,{{ plot_url }}">
 {% endblock %}
