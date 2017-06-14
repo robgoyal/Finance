@@ -5,9 +5,11 @@
 
 import datetime
 import sys
+import requests_cache
+import matplotlib.pyplot as plt
+
 from csv import reader
 from pandas_datareader import data
-import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from dateutil import parser
 
@@ -21,9 +23,14 @@ def history(symbol, years):
     start = datetime.datetime(today.year - years, today.month, today.day)
     end = datetime.datetime(today.year, today.month, today.day)
 
+    # Cache responses
+    expire_after = datetime.timedelta(days=3)
+    session = requests_cache.CachedSession(cache_name='cache', \
+                backend='sqlite', expire_after=expire_after)
+
     try:
         # Retrieve quote history and write to csv file following csv path
-        stock_history = data.DataReader(symbol, 'google', start, end)
+        stock_history = data.DataReader(symbol, 'google', start, end, session=session)
         stock_history.to_csv(csv_path)
 
     except:
