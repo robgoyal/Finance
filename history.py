@@ -1,13 +1,15 @@
 # Name: history.py
 # Author: Robin Goyal
 # Last-Modified: June 13, 2017
-# Purpose: Get stock history data
+# Purpose: Retrieve and plot stock history data
 
 import datetime
 import sys
 from csv import reader
 from pandas_datareader import data
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
+from matplotlib.dates import DateFormatter
+from dateutil import parser
 
 def history(symbol, years):
 
@@ -35,9 +37,24 @@ def plotHistory(symbol):
         data = list(reader(f))
 
         # Get dates and prices of data
-        dates = [i[0] for i in data]
-        prices = [i[4] for i in data]
+        dates = [parser.parse(i[0]) for i in data[1::]]
+        prices = [i[4] for i in data[1::]]
 
+
+    # Prepare plot
+    fig, ax = plt.subplots()
+    ax.plot(dates, prices)
+
+    # Set date axis formatting
+    fig.autofmt_xdate()
+    ax.xaxis.set_major_formatter(DateFormatter("%b-%Y"))
+
+    # Set title and labels
+    plt.title("{} Price History".format(symbol))
+    plt.ylabel("Price (USD)")
+    
+    # Show plot
+    plt.show()
 
 def main(symbol):
     history(symbol, 3)
