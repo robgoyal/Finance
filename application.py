@@ -10,7 +10,7 @@ from passlib.apps import custom_app_context as pwd_context
 from tempfile import mkdtemp
 
 from helpers import *
-from history import plot_history
+from history import get_history
 
 # configure application
 app = Flask(__name__)
@@ -54,6 +54,10 @@ def index():
         if row['shares'] != 0:
             
             stock = lookup(row['symbol'])
+
+            if stock == None:
+                return apology("Error Occurred")
+                
             row['name'] = stock['name']
             row['price'] = usd(stock['price'])
             
@@ -83,40 +87,64 @@ def account():
     
     # Form submitted
     elif request.method == "POST":
+
+        # Perform operation involving password
+        if request.form['submit'] == "password":
+            # Store form fields
+            oldPass = request.form.get("oldpass")
+            newPass = request.form.get("newpass")
+            checkPass = request.form.get("newpassCheck")
+            
+            # Get original password
+            rows = db.execute("SELECT hash FROM users WHERE id=:uid", uid=session['user_id'])
+            
+            # Verify if any fields are blank
+            if not (oldPass and newPass and checkPass):
+                return apology("Field left blank")
+            
+            # Verify if old passwords match
+            elif not pwd_context.verify(oldPass, rows[0]['hash']):
+                return apology("Old Password doesn't match")
         
-        # Store form fields
-        oldPass = request.form.get("oldpass")
-        newPass = request.form.get("newpass")
-        checkPass = request.form.get("newpassCheck")
+            # Verify new passwords match
+            elif (newPass != checkPass):
+                return apology("New password's don't match!")
+            
+            # Verify new password isn't same as old password
+            elif (oldPass == newPass and oldPass == checkPass):
+                return apology("New password must be different")
+            
+            # Hash new password and update database for sure
+            hashpwd = pwd_context.hash(newPass)
+            result = db.execute("UPDATE users SET hash=:hashpwd WHERE id=:uid",
+                        hashpwd=hashpwd, uid=session['user_id'])
+            
+            # Redirect to homepage and flash message
+            flash("Password Saved!")
+            return redirect(url_for("index"))
         
-        # Get original password
-        rows = db.execute("SELECT hash FROM users WHERE id=:uid", uid=session['user_id'])
-        
-        # Verify if any fields are blank
-        if not (oldPass and newPass and checkPass):
-            return apology("Field left blank")
-        
-        # Verify if old passwords match
-        elif not pwd_context.verify(oldPass, rows[0]['hash']):
-            return apology("Old Password doesn't match")
-    
-        # Verify new passwords match
-        elif (newPass != checkPass):
-            return apology("New password's don't match!")
-        
-        # Verify new password isn't same as old password
-        elif (oldPass == newPass and oldPass == checkPass):
-            return apology("New password must be different")
-        
-        # Hash new password and update database for sure
-        hashpwd = pwd_context.hash(newPass)
-        result = db.execute("UPDATE users SET hash=:hashpwd WHERE id=:uid",
-                    hashpwd=hashpwd, uid=session['user_id'])
-        
-        # Redirect to homepage and flash message
-        flash("Settings Saved!")
-        return redirect(url_for("index"))
-        
+        elif request.form['submit'] == "cash":
+            added = request.form.get("cash")
+
+            if not added:
+                return apology("Cash field empty!")
+            
+            cash = db.execute("SELECT cash FROM users WHERE id=:uid", uid=session['user_id'])
+
+            db.execute("UPDATE users SET cash=:cash WHERE id=:uid",
+                        cash = cash[0]['cash'] + int(added), uid=session['user_id'])
+
+            flash("Cash Added!")
+            return redirect(url_for("index"))
+
+        elif request.form['submit'] == "username":
+            flash("USERNAME WORKED")
+            return redirect(url_for("index"))
+
+        elif request.form['submit'] == "delete":
+            flash("DELETE ACCOUNT WORKED")
+            return redirect(url_for("index"))
+
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
@@ -174,9 +202,8 @@ def buy():
         else:
             
             # Enter transaction history
-            db.execute("INSERT INTO transactions (id, symbol, shares, price) VALUES \
-                    (:uid, :symbol, :shares, :price)", uid = session['user_id'], \
-                    symbol=symbol, shares = shares, price = price)
+            db.execute("INSERT INTO transactions (id, symbol, shares, price) VALUES (:uid, :symbol, :shares, :price)",\
+                        uid = session['user_id'], symbol=symbol, shares = shares, price = price)
             
             # Update users cash
             db.execute("UPDATE users SET cash=:cash WHERE id=:uid",\
@@ -261,7 +288,7 @@ def quote():
             price = stock['price']        
             
             # Get plot of stock history
-            plot_url = plot_history(symbol)
+            plot_url = get_history(stock)
 
             # Return quote information
             return render_template("quoted.html", name=name, symbol=symbol,\
@@ -381,9 +408,8 @@ def sell():
             cash = db.execute("SELECT cash FROM users WHERE id=:uid", uid=session['user_id'])
             
             # Insert transaction
-            db.execute("INSERT INTO transactions(id, symbol, shares, price) VALUES \
-                    (:uid, :symbol, :shares, :price)", uid = session['user_id'], \
-                    symbol = symbol, shares = -shares, price = price)
+            db.execute("INSERT INTO transactions(id, symbol, shares, price) VALUES (:uid, :symbol, :shares, :price)", \
+                       uid = session['user_id'], symbol = symbol, shares = -shares, price = price)
             
             # Update users cash field
             db.execute("UPDATE users SET cash=:cash WHERE id=:uid",
