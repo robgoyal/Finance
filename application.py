@@ -57,7 +57,7 @@ def index():
 
             if stock == None:
                 return apology("Error Occurred")
-                
+
             row['name'] = stock['name']
             row['price'] = usd(stock['price'])
             
@@ -88,7 +88,7 @@ def account():
     # Form submitted
     elif request.method == "POST":
 
-        # Perform operation involving password
+        # Save password button clicked
         if request.form['submit'] == "password":
             # Store form fields
             oldPass = request.form.get("oldpass")
@@ -123,27 +123,62 @@ def account():
             flash("Password Saved!")
             return redirect(url_for("index"))
         
+        # Cash Added button clicked
         elif request.form['submit'] == "cash":
+            # Get added cash amount
             added = request.form.get("cash")
 
+            # Check that field is not empty
             if not added:
                 return apology("Cash field empty!")
             
+            # Retrieve current user cash
             cash = db.execute("SELECT cash FROM users WHERE id=:uid", uid=session['user_id'])
 
+            # Update users cash field
             db.execute("UPDATE users SET cash=:cash WHERE id=:uid",
                         cash = cash[0]['cash'] + int(added), uid=session['user_id'])
 
+            # Redirect to homepage and flash message
             flash("Cash Added!")
             return redirect(url_for("index"))
 
+        # Change username button clicked
         elif request.form['submit'] == "username":
-            flash("USERNAME WORKED")
+
+            # Store form fields
+            newUser = request.form.get("newuser")
+
+            # Verify if new username field is blank
+            if not newUser:
+                return apology("Field left blank")
+
+            # Check if user name exists
+            result = db.execute("SELECT * FROM users WHERE username=:username", username=newUser)
+            if result:
+                return apology("Username already exists")
+
+            # Update username
+            db.execute("UPDATE users SET username=:username WHERE id=:uid",
+                       username=newUser, uid=session['user_id'])
+
+            # Redirect to homepage and flash message
+            flash("Username Updated!")
             return redirect(url_for("index"))
 
         elif request.form['submit'] == "delete":
-            flash("DELETE ACCOUNT WORKED")
-            return redirect(url_for("index"))
+
+            # Remove transaction history and user
+            db.execute("DELETE FROM transactions WHERE id=:uid", uid=session['user_id'])
+            db.execute("DELETE FROM users WHERE id=:uid", uid=session['user_id'])
+
+            # Remove id from session
+            session.pop('user_id')
+            session.clear()
+
+            # Redirect to login page and flash message
+            flash("Account Deleted!")
+            return redirect(url_for("login"))
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -390,7 +425,7 @@ def sell():
         if not (shares.isdigit()):
             return apology("Only Numbers allowed")
         
-        
+    
         shares = int(shares)
         
         # Verify the user has enough shares to sell
