@@ -75,6 +75,10 @@ body {
     color: #333;
 }
 
+#quote {
+    font-size: 30px;
+    font-weight: bold;
+}
 
 #plot {
     margin-top: 50px;

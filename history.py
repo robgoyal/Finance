@@ -1,6 +1,6 @@
 # Name: history.py
 # Author: Robin Goyal
-# Last-Modified: June 13, 2017
+# Last-Modified: June 15, 2017
 # Purpose: Retrieve and plot stock history data
 
 import datetime
@@ -16,7 +16,7 @@ from dateutil import parser
 
 def get_history(stock):
 
-    # 
+    # Get name and symbol from parameter
     name = stock['name']
     symbol = stock['symbol']
 
@@ -71,10 +71,10 @@ def plot_history(name, symbol):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
+    # Create png image of plot
     img = io.BytesIO()
     fig.savefig(img, format='png', bbox_inches="tight")
     img.seek(0)
-
     plot_url = base64.b64encode(img.getvalue()).decode()
 
     return plot_url

@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block main %}
-    <p>A share of {{ name }} ({{ symbol }}) costs {{ price }}. </p>
+    <h3 class="text-left"><span class="headline">Quote</span></h3>
+    <p id="quote">A share of {{ name }} ({{ symbol }}) costs {{ price }}. </p>
+
+    <h3 class="text-left"><span class="headline">Quote History</span></h3>
     <img id="plot" src="data:image/png;base64,{{ plot_url }}">
 {% endblock %}
