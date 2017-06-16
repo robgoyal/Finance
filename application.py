@@ -132,6 +132,9 @@ def account():
             if not added:
                 return apology("Cash field empty!")
             
+            elif not (added.isdigit()):
+                return apology("Only Numbers Allowed")
+                
             # Retrieve current user cash
             cash = db.execute("SELECT cash FROM users WHERE id=:uid", uid=session['user_id'])
 
